@@ -8,7 +8,6 @@ public class GravityEntity : NetworkIdentity
     [SerializeField] private float m1;
     [SerializeField] private Vector3 _velocity;
     [SerializeField] private float timeStep;
-    [SerializeField] private float G;
 
     void Start()
     {
@@ -24,7 +23,7 @@ public class GravityEntity : NetworkIdentity
             float m2 = source.mass;
             float r = Vector3.Distance(transform.position, source.transform.position);
 
-            _velocity += (source.transform.position - transform.position).normalized * (G * (m1 * m2) / (r * r)) * Time.fixedDeltaTime * timeStep; // simplified gravitational equation
+            _velocity += (source.transform.position - transform.position).normalized * (GravityConstant.G * (m1 * m2) / (r * r)) * Time.fixedDeltaTime * timeStep; // simplified gravitational equation
         }
 
         transform.position += _velocity * Time.fixedDeltaTime * timeStep;
@@ -40,7 +39,7 @@ public class GravityEntity : NetworkIdentity
             float r = Vector3.Distance(transform.position, source.transform.position);
             transform.LookAt(source.transform);
 
-            _velocity += transform.right * Mathf.Sqrt((G * m2) / r);
+            _velocity += transform.right * Mathf.Sqrt((GravityConstant.G * m2) / r);
         }
     }
 }
