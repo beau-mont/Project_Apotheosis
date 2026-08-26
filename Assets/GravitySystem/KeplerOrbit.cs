@@ -10,7 +10,7 @@ public class KeplerOrbit : MonoBehaviour
     [SerializeField] private GameObject _centralBody;
     [SerializeField] private float _ourMass;
     [SerializeField] private float _otherMass;
-    [SerializeField] private float _timeOffset;
+    public float _timeOffset;
     private NetworkedTime _networkedTime;
 
     private float _orbitalPeriod;
@@ -29,27 +29,27 @@ public class KeplerOrbit : MonoBehaviour
         // Example usage: Calculate the position of the orbiting body at a specific time
         float timeSincePeriapsis = _networkedTime.ClientSimulationTime + _timeOffset; // Replace with your desired time
 
-        Vector3 position = CalculatePositionAtTime(timeSincePeriapsis, _semiMajorAxis, _eccentricity, _inclination);
+        Vector3 position = CalculatePositionAtTime(timeSincePeriapsis);
         transform.position = position;
     }
 
-    public Vector3 CalculatePositionAtTime(float timeSincePeriapsis, float semiMajorAxis, float eccentricity, float inclination)
+    public Vector3 CalculatePositionAtTime(float timeSincePeriapsis)
     {
-        if (semiMajorAxis <= 0f || eccentricity < 0f || eccentricity >= 1f)
+        if (_semiMajorAxis <= 0f || _eccentricity < 0f || _eccentricity >= 1f)
         {
             return Vector3.zero;
         }
 
         float meanAnomaly = _meanMotion * timeSincePeriapsis;
 
-        float eccentricAnomaly = SolveKeplerEquation(meanAnomaly, eccentricity);
+        float eccentricAnomaly = SolveKeplerEquation(meanAnomaly, _eccentricity);
         float trueAnomaly = 2f * Mathf.Atan2(
-            Mathf.Sqrt(1f + eccentricity) * Mathf.Sin(eccentricAnomaly * 0.5f),
-            Mathf.Sqrt(1f - eccentricity) * Mathf.Cos(eccentricAnomaly * 0.5f));
+            Mathf.Sqrt(1f + _eccentricity) * Mathf.Sin(eccentricAnomaly * 0.5f),
+            Mathf.Sqrt(1f - _eccentricity) * Mathf.Cos(eccentricAnomaly * 0.5f));
 
-        float radius = semiMajorAxis * (1f - eccentricity * Mathf.Cos(eccentricAnomaly));
+        float radius = _semiMajorAxis * (1f - _eccentricity * Mathf.Cos(eccentricAnomaly));
         Vector3 localPosition = new Vector3(radius * Mathf.Cos(trueAnomaly), 0f, radius * Mathf.Sin(trueAnomaly));
-        Vector3 inclinedPosition = Quaternion.Euler(0f, 0f, inclination) * localPosition;
+        Vector3 inclinedPosition = Quaternion.Euler(0f, 0f, _inclination) * localPosition;
 
         return _centralBody != null
             ? _centralBody.transform.position + inclinedPosition
